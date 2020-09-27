@@ -1,3 +1,3 @@
 ls
-cat
+echo "Run me On Aws"
 pwd

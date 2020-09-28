@@ -12,12 +12,27 @@ case $USER_ID in
     exit 1
   ;;
 esac
+## Function
+statusCheck(){
+  case $? in
+    0)
+      echo -e "\e[1;32mSUCCESS\e[0m"
+      ;;
+    *)
+      echo  -e "\e[1;31mFAILURE\3[0m"
+      exit 3
+      ;;
+  esac
+}
 case $1 in
   frontend)
     echo -e "\e[1;33m**********>>>>>>>>>>>> Installing Nginx <<<<<<<<<<***********\e[0m"
-    echo    Installing Frontend
-    echo -e "\e[1;33m**********>>>>>>>>>>>> Starting Nginx <<<<<<<<<<***********\e[0m"
     yum install nginx -y
+    statusCheck
+    echo -e "\e[1;33m**********>>>>>>>>>>>> Starting Nginx <<<<<<<<<<***********\e[0m"
+    systemctl enable nginx
+    systemctl start nginx
+    statusCheck
     ;;
   catalogue)
    echo  Installing Catalogue

@@ -14,5 +14,7 @@ case $1 in
    echo  Completed Cart
    ;;
   *)
-;;
+    echo "invalid Input, Following are the only accepted "
+    echo "Usage $0 frontend | Catalogue | cart "
+ ;;
 esac

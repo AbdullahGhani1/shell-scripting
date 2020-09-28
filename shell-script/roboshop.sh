@@ -3,7 +3,7 @@
 case $1 in
   frontend)
     echo Installing Frontend
-    echo Completed Installing Frontend
+    yum install nginx -y
     ;;
   catalogue)
    echo  Installing Catalogue

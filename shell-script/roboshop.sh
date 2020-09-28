@@ -7,9 +7,9 @@ case $USER_ID in
     echo  "Starting Installation"
     ;;
   *)
-    echo "You should be a root user to perform this script"
+    echo -e "\e[1;31mYou should be a root user to perform this script\e[0m"
     #use exit status to stop script on errors
-    exit
+    exit 1
   ;;
 esac
 case $1 in
@@ -28,5 +28,6 @@ case $1 in
   *)
     echo "invalid Input, Following are the only accepted "
     echo "Usage $0 frontend | Catalogue | cart "
+    exit 2
  ;;
 esac

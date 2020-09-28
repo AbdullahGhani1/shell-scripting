@@ -8,6 +8,8 @@ case $USER_ID in
     ;;
   *)
     echo "You should be a root user to perform this script"
+    #use exit status to stop script on errors
+    exit
   ;;
 esac
 case $1 in

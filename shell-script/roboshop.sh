@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 USER_ID=(id -u)
 
 case $USER_ID in
@@ -14,16 +14,18 @@ case $USER_ID in
 esac
 case $1 in
   frontend)
-    echo Installing Frontend
+    echo -e "\e[1;33m**********>>>>>>>>>>>> Installing Nginx <<<<<<<<<<***********\e[0m"
+    echo    Installing Frontend
+    echo -e "\e[1;33m**********>>>>>>>>>>>> Starting Nginx <<<<<<<<<<***********\e[0m"
     yum install nginx -y
     ;;
   catalogue)
    echo  Installing Catalogue
    echo Completed Installing Catalogue
    ;;
- cart)
-   echo  Installing Cart
-   echo  Completed Cart
+  cart)
+    echo  Installing Cart
+    echo  Completed Cart
    ;;
   *)
     echo "invalid Input, Following are the only accepted "

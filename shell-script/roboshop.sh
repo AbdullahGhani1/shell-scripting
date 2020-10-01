@@ -58,6 +58,36 @@ case $1 in
     echo  Installing Cart
     echo  Completed Cart
    ;;
+ mongo)
+   echo '[mongodb-org-4.2]
+   name=MongoDB Repository
+   baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.2/x86_64/
+   gpgcheck=1
+   enabled=1
+   gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc' >/etc/yum.repos.d/mongodb.repo
+   Print "Installing MongoDB"
+   yum install -y mongodb-org
+   statusCheck
+   Print "Update MongoDB Configuration"
+   sed -i 's/127.0.0.1/0.0.0.0/' /etc/mongod.conf
+   statusCheck
+   Print "Starting MongoDB Service"
+   systemctl enable mongod
+   systemctl start mongod
+   statusCheck
+   Print "Download Schema"
+   curl -s -L -o /tmp/mongodb.zip "https://dev.azure.com/DevOps-Batches/ce99914a-0f7d-4c46-9ccc-e4d025115ea9/_apis/git/repositories/e9218aed-a297-4945-9ddc-94156bd81427/items?path=%2F&versionDescriptor%5BversionOptions%5D=0&versionDescriptor%5BversionType%5D=0&versionDescriptor%5Bversion%5D=master&resolveLfs=true&%24format=zip&api-version=5.0&download=true"
+   statusCheck
+   cd /tmp
+   Print "Extracting Archive"
+   unzip -o /tmp/mongodb.zip
+   statusCheck
+   Print "Load Catalogue Schema"
+   mongo < catalogue.js
+   Print "Load User Schema"
+   mongo < users.js
+   systemctl restart mongod
+   ;;
   *)
     echo "invalid Input, Following are the only accepted "
     echo "Usage $0 frontend | Catalogue | cart "

@@ -72,7 +72,7 @@ case $1 in
     yum install nginx -y
     statusCheck
     Print "Downloading Frontend App"
-    curl -s -L -o /tmp/frontend.zip "https://github.com/AbdullahGhani1/rs-frontend"
+    curl -s -L -o /tmp/frontend.zip "https://github.com/AbdullahGhani1/rs-frontend/archive/master.zip"
     statusCheck
      cd /usr/share/nginx/html
      rm -rf *
@@ -95,15 +95,15 @@ case $1 in
     ;;
   catalogue)
    Print  "Installing Catalogue"
-   setupNodeJs "catalogue" "https://github.com/AbdullahGhani1/rs-catalogue"
+   setupNodeJs "catalogue" "https://github.com/AbdullahGhani1/rs-catalogue/archive/master.zip"
    ;;
   cart)
     Print  "Installing Cart"
-    setupNodeJs "cart" "https://github.com/AbdullahGhani1/rs-cart"
+    setupNodeJs "cart" "https://github.com/AbdullahGhani1/rs-cart/archive/master.zip"
    ;;
  user)
    Print  "Installing User"
-   setupNodeJs "user" "https://github.com/AbdullahGhani1/rs-user"
+   setupNodeJs "user" "https://github.com/AbdullahGhani1/rs-user/archive/master.zip"
    ;;
  mongo)
    echo '[mongodb-org-4.2]

@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 USER_ID=$(id -u)
+DNS_DOMAIN_NAME="devops360.tk"
 
 case $USER_ID in
   0)
@@ -28,6 +29,39 @@ statusCheck(){
       ;;
   esac
 }
+setupNodeJs(){
+  Print "Installing NodeJs"
+  yum install -y nodejs make gcc-c++
+  statusCheck
+  id roboshop
+  case $? in
+  1)
+    Print "Add Application User"
+    useradd roboshop
+    statusCheck
+  ;;
+  esac
+  Print "Downloadng Application"
+  curl -s -: -o /tmp/$1.zip "$2"
+  statusCheck
+  Print "Extracting Application Archive"
+  mkdir -p /home/roboshop/$1
+  cd /home/roboshop/$1
+  unzip -o /tmp/$1.zip
+  statusCheck
+  Print "Install NodeJs App Dependencies"
+  npm --unsafe-perm install
+  statusCheck
+  chown roboshop:roboshop /home/roboshop -R
+  Print "Setup $1 Service"
+  mv /home/roboshop/$1/systemd.service /etc/systemd/system/$1.service
+  sed -i -e "s/MONGO_ENDPOINT/mongodb.${DNS_DOMAIN_NAME}/"  /etc/systemd/system/$1.service
+  statusCheck
+  print "Start $1 Service"
+  systemctl daemon-reload
+  systemctl start $1
+  systemctl enable $1
+}
 # Main Program
 case $1 in
   frontend)
@@ -36,7 +70,7 @@ case $1 in
     statusCheck
     statusCheck
     Print "Downloading Frontend App"
-    curl -s -L -o /tmp/frontend.zip "https://dev.azure.com/DevOps-Batches/ce99914a-0f7d-4c46-9ccc-e4d025115ea9/_apis/git/repositories/db389ddc-b576-4fd9-be14-b373d943d6ee/items?path=%2F&versionDescriptor%5BversionOptions%5D=0&versionDescriptor%5BversionType%5D=0&versionDescriptor%5Bversion%5D=master&resolveLfs=true&%24format=zip&api-version=5.0&download=true"
+    curl -s -L -o /tmp/frontend.zip "https://github.com/AbdullahGhani1/rs-frontend"
     statusCheck
      cd /usr/share/nginx/html
      rm -rf *
@@ -52,6 +86,7 @@ case $1 in
     ;;
   catalogue)
    echo  Installing Catalogue
+   setupNodeJs "catalogue" "https://github.com/AbdullahGhani1/rs-catalogue"
    echo Completed Installing Catalogue
    ;;
   cart)
@@ -76,7 +111,7 @@ case $1 in
    systemctl start mongod
    statusCheck
    Print "Download Schema"
-   curl -s -L -o /tmp/mongodb.zip "https://dev.azure.com/DevOps-Batches/ce99914a-0f7d-4c46-9ccc-e4d025115ea9/_apis/git/repositories/e9218aed-a297-4945-9ddc-94156bd81427/items?path=%2F&versionDescriptor%5BversionOptions%5D=0&versionDescriptor%5BversionType%5D=0&versionDescriptor%5Bversion%5D=master&resolveLfs=true&%24format=zip&api-version=5.0&download=true"
+   curl -s -L -o /tmp/mongodb.zip "https://github.com/AbdullahGhani1/rs-mongo"
    statusCheck
    cd /tmp
    Print "Extracting Archive"

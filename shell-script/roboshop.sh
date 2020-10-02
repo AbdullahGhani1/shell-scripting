@@ -71,7 +71,6 @@ case $1 in
     Print "Installing Nginx"
     yum install nginx -y
     statusCheck
-    statusCheck
     Print "Downloading Frontend App"
     curl -s -L -o /tmp/frontend.zip "https://github.com/AbdullahGhani1/rs-frontend"
     statusCheck
@@ -79,13 +78,14 @@ case $1 in
      rm -rf *
      Print "Extracting Frontend Archive"
      unzip /tmp/frontend.zip
+     statusCheck
      mv static/* .
-    rm -rf static README.md
-    mv localhost.conf /etc/nginx/nginx.conf
-    Print "Starting Nginx"
-    systemctl enable nginx
-    systemctl start nginx
-
+     rm -rf static README.md
+     mv localhost.conf /etc/nginx/nginx.conf
+     Print "Starting Nginx"
+     systemctl enable nginx
+     systemctl restart nginx
+     Status_Check
     ;;
   catalogue)
    Print  "Installing Catalogue"

@@ -79,6 +79,8 @@ case $1 in
      Print "Extracting Frontend Archive"
      unzip /tmp/frontend.zip
      statusCheck
+     mv rs-frontend-master/*  .
+     rm -rf rs-frontend-master
      mv static/* .
      rm -rf static README.md
      mv localhost.conf /etc/nginx/nginx.conf

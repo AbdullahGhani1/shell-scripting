@@ -7,7 +7,7 @@ resource "aws_spot_instance_request" "cheap_worker" {
 resource "null_resource" "cli" {
   depends_on = [aws_security_group.aa,aws_spot_instance_request.cheap_worker]
   count = length(var.apps)
-  provisioner "l9ocal-exec" {
+  provisioner "local-exec" {
     command = <<EOF
     aws ec2 create-tags --resources ${element(aws_spot_instance_request.cheap_worker.*.spot_instance_id, count.index)} --tags Key=Name,Value=${element(var.apps, count.index)} --region us-east-2
     aws ec2 modify-instance-attribute --instance-id ${element(aws_spot_instance_request.cheap_worker.*.spot_instance_id, count.index)} --groups ${aws_security_group.aa.id} --region us-east-2

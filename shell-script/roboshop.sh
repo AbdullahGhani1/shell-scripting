@@ -56,11 +56,14 @@ setupNodeJs(){
   Print "Setup $1 Service"
   mv /home/roboshop/$1/systemd.service /etc/systemd/system/$1.service
   sed -i -e "s/MONGO_ENDPOINT/mongodb.${DNS_DOMAIN_NAME}/"  /etc/systemd/system/$1.service
+  sed -i -e "s/RESDIS_ENDPOINT/redis.${DNS_DOMAIN_NAME}/"  /etc/systemd/system/$1.service
+  sed -i -e "s/CATALOGUE_ENDPOINT/catalogue.${DNS_DOMAIN_NAME}/"  /etc/systemd/system/$1.service
   statusCheck
   print "Start $1 Service"
   systemctl daemon-reload
   systemctl start $1
   systemctl enable $1
+  statusCheck
 }
 # Main Program
 case $1 in
@@ -85,13 +88,16 @@ case $1 in
 
     ;;
   catalogue)
-   echo  Installing Catalogue
+   Print  "Installing Catalogue"
    setupNodeJs "catalogue" "https://github.com/AbdullahGhani1/rs-catalogue"
-   echo Completed Installing Catalogue
    ;;
   cart)
-    echo  Installing Cart
-    echo  Completed Cart
+    Print  "Installing Cart"
+    setupNodeJs "cart" "https://github.com/AbdullahGhani1/rs-cart"
+   ;;
+ user)
+   Print  "Installing User"
+   setupNodeJs "user" "https://github.com/AbdullahGhani1/rs-user"
    ;;
  mongo)
    echo '[mongodb-org-4.2]

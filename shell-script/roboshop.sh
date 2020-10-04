@@ -50,7 +50,7 @@ setupNodeJs(){
 #  ;;
 #  esac
   Print "Downloadng Application"
-  curl -s -: -o /tmp/$1.zip "$2"
+  curl -s -L -o /tmp/$1.zip "$2"
   statusCheck
   Print "Extracting Application Archive"
   mkdir -p /home/roboshop/$1

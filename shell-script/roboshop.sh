@@ -31,8 +31,8 @@ statusCheck(){
 }
 
 Create_AppUser() {
-  id roboshop
-  if [ $? -ne 0 ]; then
+  robo=$(id roboshop)
+  if [ $robo -ne 0 ]; then
       Print "Add Application User"
       useradd roboshop
       Status_Check

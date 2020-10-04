@@ -29,18 +29,28 @@ statusCheck(){
       ;;
   esac
 }
+
+Create_AppUser() {
+  id roboshop
+  if [ $? -ne 0 ]; then
+      Print "Add Application User"
+      useradd roboshop
+      Status_Check
+  fi
+}
 setupNodeJs(){
   Print "Installing NodeJs"
   yum install -y nodejs make gcc-c++
   statusCheck
-  id roboshop
-  case $? in
-  1)
-    Print "Add Application User"
-    useradd roboshop
-    statusCheck
-  ;;
-  esac
+  Create_AppUser
+#  id roboshop
+#  case $? in
+#  1)
+#    Print "Add Application User"
+#    useradd roboshop
+#    statusCheck
+#  ;;
+#  esac
   Print "Downloadng Application"
   curl -s -: -o /tmp/$1.zip "$2"
   statusCheck

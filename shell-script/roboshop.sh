@@ -113,7 +113,7 @@ sed -i -e "s/CATALOGUE/${CATALOGUE}/" -e "s/CART/${CART}/" -e "s/USER/${USER}/" 
    Print  "Installing User"
    setupNodeJs "user" "https://github.com/AbdullahGhani1/rs-user/archive/master.zip"
    ;;
- mongo)
+ mongodb)
    echo '[mongodb-org-4.2]
    name=MongoDB Repository
    baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.2/x86_64/
@@ -131,11 +131,13 @@ sed -i -e "s/CATALOGUE/${CATALOGUE}/" -e "s/CART/${CART}/" -e "s/USER/${USER}/" 
    systemctl start mongod
    statusCheck
    Print "Download Schema"
-   curl -s -L -o /tmp/mongodb.zip "https://github.com/AbdullahGhani1/rs-mongo"
+   curl -s -L -o /tmp/mongodb.zip "https://github.com/AbdullahGhani1/rs-mongo/master.zip"
    statusCheck
    cd /tmp
    Print "Extracting Archive"
    unzip -o /tmp/mongodb.zip
+   mv rs-mongo-master/*  .
+   rm -rf rs-mongo-master
    statusCheck
    Print "Load Catalogue Schema"
    mongo < catalogue.js

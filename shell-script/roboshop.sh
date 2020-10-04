@@ -31,12 +31,15 @@ statusCheck(){
 }
 
 Create_AppUser() {
-  robo=$(id roboshop)
-  if [ $robo -ne 0 ]; then
+  id roboshop
+  if [ $? -ne 0 ]; then
       Print "Add Application User"
       useradd roboshop
       Status_Check
+  else
+      statusCheck
   fi
+
 }
 setupNodeJs(){
   Print "Installing NodeJs"

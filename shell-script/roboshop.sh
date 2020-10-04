@@ -83,16 +83,22 @@ case $1 in
      rm -rf rs-frontend-master
      mv static/* .
      rm -rf static README.md
-     mv localhost.conf /etc/nginx/nginx.conf
-     sed -i -e '/^#/ d' /etc/nginx/nginx.conf
-
-     for app in catalogue cart user shipping payment; do
-      sed -i "/localhost/ a \ \n\tlocation /api/$app { \n\t \tproxy_pass  http://$app.$DNS_DOMAIN_NAME:8000 ; \n\t}" /etc/nginx/nginx.conf
-     done
+#     mv localhost.conf /etc/nginx/nginx.conf
+#     sed -i -e '/^#/ d' /etc/nginx/nginx.conf
+#     for app in catalogue cart user shipping payment; do
+#      sed -i "/localhost/ a \ \n\tlocation /api/$app { \n\t \tproxy_pass  http://$app.$DNS_DOMAIN_NAME:8000 ; \n\t}" /etc/nginx/nginx.conf
+#     done
+     mv template.conf /etc/nginx/nginx.conf
+     export CATALOGUE=catalogue.${DNS_DOMAIN_NAME}
+     export CART=cart.${DNS_DOMAIN_NAME}
+     export USER=user.${DNS_DOMAIN_NAME}
+     export SHIPPING=shipping.${DNS_DOMAIN_NAME}
+     export PAYMENT=payment.${DNS_DOMAIN_NAME}
+     envsubst <template.conf > /etc/nginx/nginx.conf
 
      Print "Starting Nginx"
      systemctl enable nginx
-     systemctl restart nginx
+     systemctl start nginx
      Status_Check
     ;;
   catalogue)

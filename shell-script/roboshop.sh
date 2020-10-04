@@ -147,6 +147,26 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc' >/etc/yum.repos.d/mong
    mongo < users.js
    systemctl restart mongod
    ;;
+   redis)
+   Print "Install Yum Utils"
+  yum install epel-release yum-utils http://rpms.remirepo.net/enterprise/remi-release-7.rpm -y
+  statusCheck
+  Print "Enable Remi repos"
+  yum-config-manager --enable remi
+  statusCheck
+  Print "Install Redis"
+  yum install redis -y
+  statusCheck
+  Print "Update Configuration"
+  sed -i -e '/^bind 127.0.0.1/ c bind 0.0.0.0' /etc/redis.conf
+  statusCheck
+  Print "Start Service"
+  systemctl enable  redis
+  systemctl start redis
+  statusCheck
+
+
+   ;;
   *)
     echo "invalid Input, Following are the only accepted "
     echo "Usage $0 frontend | Catalogue | cart "

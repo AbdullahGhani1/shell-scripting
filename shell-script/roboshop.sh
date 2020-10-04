@@ -94,12 +94,12 @@ case $1 in
      export USER=user.${DNS_DOMAIN_NAME}
      export SHIPPING=shipping.${DNS_DOMAIN_NAME}
      export PAYMENT=payment.${DNS_DOMAIN_NAME}
-     envsubst <template.conf > /etc/nginx/nginx.conf
-
+#     envsubst <template.conf > /etc/nginx/nginx.conf
+sed -i -e "/sCATALOGUE/${CATALOGUE}/" -e "/sCART/${CART}/" -e "/sUSER/${USER}/" -e "/sSHIPPING/${SHIPPING}/" -e "/sPAYMENT/${PAYMENT}/" /etc/nginx/nginx.conf
      Print "Starting Nginx"
      systemctl enable nginx
-     systemctl start nginx
-     Status_Check
+     systemctl restart nginx
+     statusCheck
     ;;
   catalogue)
    Print  "Installing Catalogue"

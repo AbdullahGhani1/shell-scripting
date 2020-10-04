@@ -168,14 +168,14 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc' >/etc/yum.repos.d/mong
   yum install redis -y
   statusCheck
   Print "Update Configuration"
-  sed -i -e '/^bind 127.0.0.1/ c bind 0.0.0.0' /etc/redis.conf
+  if [ -e /etc/redis.conf ]; then
+    sed -i -e '/^bind 127.0.0.1/ c bind 0.0.0.0' /etc/redis.conf
+   fi
   statusCheck
   Print "Start Service"
   systemctl enable  redis
   systemctl start redis
   statusCheck
-
-
    ;;
   *)
     echo "invalid Input, Following are the only accepted "

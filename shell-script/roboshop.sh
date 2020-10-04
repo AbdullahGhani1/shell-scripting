@@ -41,14 +41,6 @@ setupNodeJs(){
   yum install -y nodejs make gcc-c++
   statusCheck
   Create_AppUser
-#  id roboshop
-#  case $? in
-#  1)
-#    Print "Add Application User"
-#    useradd roboshop
-#    statusCheck
-#  ;;
-#  esac
   Print "Downloadng Application"
   curl -s -L -o /tmp/$1.zip "$2"
   statusCheck
@@ -65,9 +57,10 @@ setupNodeJs(){
   chown roboshop:roboshop /home/roboshop -R
   Print "Setup $1 Service"
   mv /home/roboshop/$1/systemd.service /etc/systemd/system/$1.service
-  sed -i -e "s/MONGO_ENDPOINT/mongodb.${DNS_DOMAIN_NAME}/"  /etc/systemd/system/$1.service
-  sed -i -e "s/RESDIS_ENDPOINT/redis.${DNS_DOMAIN_NAME}/"  /etc/systemd/system/$1.service
-  sed -i -e "s/CATALOGUE_ENDPOINT/catalogue.${DNS_DOMAIN_NAME}/"  /etc/systemd/system/$1.service
+  sed -i -e "s/MONGO_ENDPOINT/mongodb.${DNS_DOMAIN_NAME}/" /etc/systemd/system/$1.service
+  sed -i -e "s/REDIS_ENDPOINT/redis.${DNS_DOMAIN_NAME}/" /etc/systemd/system/$1.service
+  sed -i -e "s/CATALOGUE_ENDPOINT/catalogue.${DNS_DOMAIN_NAME}/" /etc/systemd/system/$1.service
+
   statusCheck
   Print "Start $1 Service"
   systemctl daemon-reload

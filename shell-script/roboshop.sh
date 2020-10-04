@@ -115,11 +115,13 @@ sed -i -e "s/CATALOGUE/${CATALOGUE}/" -e "s/CART/${CART}/" -e "s/USER/${USER}/" 
    ;;
  mongodb)
    echo '[mongodb-org-4.2]
-   name=MongoDB Repository
-   baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.2/x86_64/
-   gpgcheck=1
-   enabled=1
-   gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc' >/etc/yum.repos.d/mongodb.repo
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.2/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc' >/etc/yum.repos.d/mongodb.repo
+    Print "Installing MongoDB"
+
    Print "Installing MongoDB"
    yum install -y mongodb-org
    statusCheck

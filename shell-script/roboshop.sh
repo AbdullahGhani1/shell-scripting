@@ -69,7 +69,7 @@ setupNodeJs(){
   sed -i -e "s/RESDIS_ENDPOINT/redis.${DNS_DOMAIN_NAME}/"  /etc/systemd/system/$1.service
   sed -i -e "s/CATALOGUE_ENDPOINT/catalogue.${DNS_DOMAIN_NAME}/"  /etc/systemd/system/$1.service
   statusCheck
-  print "Start $1 Service"
+  Print "Start $1 Service"
   systemctl daemon-reload
   systemctl start $1
   systemctl enable $1

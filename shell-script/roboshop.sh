@@ -32,14 +32,12 @@ statusCheck(){
 
 Create_AppUser() {
   id roboshop
+  statusCheck
   if [ $? -ne 0 ]; then
       Print "Add Application User"
       useradd roboshop
       Status_Check
-  else
-      statusCheck
-  fi
-
+fi
 }
 setupNodeJs(){
   Print "Installing NodeJs"

@@ -123,8 +123,6 @@ baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.2/x86_64/
 gpgcheck=1
 enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc' >/etc/yum.repos.d/mongodb.repo
-    Print "Installing MongoDB"
-
    Print "Installing MongoDB"
    yum install -y mongodb-org
    statusCheck
@@ -166,10 +164,40 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc' >/etc/yum.repos.d/mong
    fi
   statusCheck
   Print "Start Service"
-  systemctl enable  redis
+  systemctl enable redis
   systemctl start redis
   statusCheck
    ;;
+shipping)
+  Print "Install Maven"
+  yum install maven -y
+  statusCheck
+  Create_AppUser
+  cd /home/roboshop
+  Print "Downloading Application"
+  curl -s -L -o /tmp/mongodb.zip "https://github.com/AbdullahGhani1/rs-shipping/archive/master.zip"
+  statusCheck
+  mkdir shipping
+  cd shipping
+  Print "Extracting Archive"
+  unzip -o /tmp/mongodb.zip
+  statusCheck
+  mv rs-shipping-master/*  .
+  rm -rf rs-shipping-master
+  Print "Install Dependencies"
+  mvn clean package
+  statusCheck
+  mv target/*dependencies.jar shipping.jar
+  chown roboshop:roboshop /home/roboshop -R
+  mv /home/roboshop/shipping/systemd.service /etc/systemd/system/shipping.service
+  sed -i -e "s/CRATENDPOINT/cart.${DNS_DOMAIN_NAME}/" /etc/systemd/system/shipping.service
+  sed -i -e "s/DBHOST/mysql.${DNS_DOMAIN_NAME}/" /etc/systemd/system/shipping.service
+  systemctl daemon-reload
+  systemctl enable shipping
+  Print "Start Service"
+  systemctl start shipping
+  statusCheck
+  ;;
   *)
     echo "invalid Input, Following are the only accepted "
     echo "Usage $0 frontend | Catalogue | cart "

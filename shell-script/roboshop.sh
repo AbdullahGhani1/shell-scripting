@@ -133,7 +133,7 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc' >/etc/yum.repos.d/mong
    systemctl start mongod
    statusCheck
    Print "Download Schema"
-   curl -s -L -o /tmp/mongodb.zip "https://github.com/AbdullahGhani1/rs-mongo/master.zip"
+   curl -s -L -o /tmp/mongodb.zip "https://github.com/AbdullahGhani1/rs-mongo/archive/master.zip"
    statusCheck
    cd /tmp
    Print "Extracting Archive"

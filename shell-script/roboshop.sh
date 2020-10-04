@@ -57,6 +57,8 @@ setupNodeJs(){
   cd /home/roboshop/$1
   unzip -o /tmp/$1.zip
   statusCheck
+  mv rs-$1-master/*  .
+  rm -rf rs-$1-master
   Print "Install NodeJs App Dependencies"
   npm --unsafe-perm install
   statusCheck

@@ -36,6 +36,10 @@ Create_AppUser() {
       useradd roboshop
       statusCheck)
 }
+copyFile(){
+  mv rs-$1-master/*  .
+  rm -rf rs-$1-master
+}
 setupNodeJs(){
   Print "Installing NodeJs"
   yum install -y nodejs make gcc-c++
@@ -49,8 +53,7 @@ setupNodeJs(){
   cd /home/roboshop/$1
   unzip -o /tmp/$1.zip
   statusCheck
-  mv rs-$1-master/*  .
-  rm -rf rs-$1-master
+  copyFile $1
   Print "Install NodeJs App Dependencies"
   npm --unsafe-perm install
   statusCheck
@@ -80,8 +83,7 @@ Frontend(){
      Print "Extracting Frontend Archive"
      unzip /tmp/frontend.zip
      statusCheck
-     mv rs-frontend-master/*  .
-     rm -rf rs-frontend-master
+     copyFile frontend
      mv static/* .
      rm -rf static README.md
      mv template.conf /etc/nginx/nginx.conf
@@ -121,14 +123,14 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc' >/etc/yum.repos.d/mong
    cd /tmp
    Print "Extracting Archive"
    unzip -o /tmp/mongodb.zip
-   mv rs-mongo-master/*  .
-   rm -rf rs-mongo-master
+   copyFile mongo
    statusCheck
    Print "Load Catalogue Schema"
    mongo < catalogue.js
    Print "Load User Schema"
    mongo < users.js
-   systemctl restart mongod
+   statusCheck
+#   systemctl restart mongod
 }
 Redis (){
   Print "Install Yum Utils"
@@ -164,8 +166,7 @@ Shipping(){
   Print "Extracting Archive"
   unzip -o /tmp/mongodb.zip
   statusCheck
-  mv rs-shipping-master/*  .
-  rm -rf rs-shipping-master
+  copyFile shipping
   Print "Install Dependencies"
   mvn clean package
   statusCheck
@@ -179,6 +180,51 @@ Shipping(){
   Print "Start Service"
   systemctl start shipping
   statusCheck
+}
+MySQL(){
+ Print "Download MYSQL"
+ case $? in
+  1)
+    curl -L -o /tmp/mysql-5.7.28-1.el7.x86_64.rpm-bundle.tar https://downloads.mysql.com/archives/get/p/23/file/mysql-5.7.28-1.el7.x86_64.rpm-bundle.tar
+    cd /tmp
+    Print "Extract Archive"
+    tar -xf mysql-5.7.28-1.el7.x86_64.rpm-bundle.tar
+    statusCheck
+    yum remove mariadb-libs -y
+    Print "Install MySQL"
+    yum install mysql-community-client-5.7.28-1.el7.x86_64.rpm \
+                mysql-community-common-5.7.28-1.el7.x86_64.rpm \
+                mysql-community-libs-5.7.28-1.el7.x86_64.rpm \
+                mysql-community-server-5.7.28-1.el7.x86_64.rpm -y
+    statusCheck
+      ;;
+ esac
+  systemctl enable mysqld
+  Print "Start MYSQL"
+  systemctl start mysqld
+  statusCheck
+  echo "show database;"| mysql -uroot -ppassword
+  case $? in
+  1)
+    echo -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'Password@2';\nuninstall plugin validate_password;\nALTER USER
+     'root'@'localhost' IDENTIFIED BY 'password';">/tmp/reset-password.sql
+     ROOT_PASSWORD=$(grep 'A temporary password' /var/log/mysqld.log | awk '{print $NF}')
+     Print "Reset MYSQL Password"
+     mysql -uroot -p"${ROOT_PASSWORD}" < /tmp/reset-password.sql
+     statusCheck
+     ;;
+   esac
+   Print "Download Schema"
+   curl -s -L -o /tmp/mysql.zip "https://github.com/AbdullahGhani1/rs-mysql.git/archive/master.zip"
+   statusCheck
+   Print "Extract Archive"
+   cd /tmp
+   unzip mysql.zip
+   statusCheck
+   copyFile mysql
+   Print "Load Schema"
+   mysql -u root -ppassword < shipping.sql
+   statusCheck
 }
 # Main Program
 case $1 in
@@ -206,7 +252,9 @@ case $1 in
 shipping)
   Shipping
   ;;
-  mysql);;
+  mysql)
+    MySQL
+    ;;
   *)
     echo "invalid Input, Following are the only accepted "
     echo "Usage $0 frontend | Catalogue | cart | Redis | Monho | Shipping | Mysql  "

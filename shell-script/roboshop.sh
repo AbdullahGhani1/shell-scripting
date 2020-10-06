@@ -219,12 +219,59 @@ MySQL(){
    statusCheck
    Print "Extract Archive"
    cd /tmp
-   unzip mysql.zip
+   unzip -o mysql.zip
    statusCheck
    copyFile mysql
    Print "Load Schema"
    mysql -u root -ppassword < shipping.sql
    statusCheck
+}
+Payment()
+{
+  Print "Install Python"
+  yum install python36 gcc python3-devel -y
+  statusCheck
+  Create_AppUser
+  Print "Download Application"
+  curl -s -L -o /tmp/mysql.zip "https://github.com/AbdullahGhani1/rs-payment.git/archive/master.zip"
+  statusCheck
+  cd /home/roboshop
+  mkdir payment
+  cd payment
+  unzip /tmp/payment.zip
+  copyFile payment
+  Print "Install the dependencies"
+  pip3 install -r requirements.txt
+  statusCheck
+  chown roboshop:roboshop /home/roboshop -R
+  mv /home/roboshop/payment/systemd.service /etc/systemd/system/payment.service
+  sed -i -e "s/CARTHOST/cart.${DNS_DOMAIN_NAME}/" -e "s/USERHOST/user.${DNS_DOMAIN_NAME}/" -e "s/AMQPHOST/rabbitmq.${DNS_DOMAIN_NAME}/" /etc/systemd/system/payment.service
+  systemctl daemon-reload
+  systemctl enable payment
+  Print "Start Payment Service"
+  systemctl start payment
+}
+
+RabbitMQ()
+{
+  Print "installing ErLang"
+  yum install https://packages.erlang-solutions.com/erlang/rpm/centos/7/x86_64/esl-erlang_22.2.1-1~centos~7_amd64.rpm -y
+  statusCheck
+  Print "Install RabbitMQ repos"
+  curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.rpm.sh | sudo bash
+  statusCheck
+  Print "Install RabbitMQ Server"
+  yum install rabbitmq-server -y
+  statusCheck
+  Print "Start RabbitMQ Server"
+  systemctl enable rabbitmq-server
+  systemctl start rabbitmq-server
+  statusCheck
+  Print "Create App user in RabbitMQ"
+  rabbitmqctl add_user roboshop roboshop123
+  rabbitmqctl set_user_tags roboshop administrator
+  rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*"
+  statusCheck
 }
 # Main Program
 case $1 in
@@ -254,6 +301,12 @@ shipping)
   ;;
   mysql)
     MySQL
+    ;;
+  payment)
+    Payment
+    ;;
+  rabbitmq)
+    Rabbitmq
     ;;
   *)
     echo "invalid Input, Following are the only accepted "

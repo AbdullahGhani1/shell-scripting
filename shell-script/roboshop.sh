@@ -68,9 +68,7 @@ setupNodeJs(){
   systemctl enable $1
   statusCheck
 }
-# Main Program
-case $1 in
-  frontend)
+Frontend(){
     Print "Installing Nginx"
     yum install nginx -y
     statusCheck
@@ -86,38 +84,22 @@ case $1 in
      rm -rf rs-frontend-master
      mv static/* .
      rm -rf static README.md
-#     mv localhost.conf /etc/nginx/nginx.conf
-#     sed -i -e '/^#/ d' /etc/nginx/nginx.conf
-#     for app in catalogue cart user shipping payment; do
-#      sed -i "/localhost/ a \ \n\tlocation /api/$app { \n\t \tproxy_pass  http://$app.$DNS_DOMAIN_NAME:8000 ; \n\t}" /etc/nginx/nginx.conf
-#     done
      mv template.conf /etc/nginx/nginx.conf
+
      export CATALOGUE=catalogue.${DNS_DOMAIN_NAME}
      export CART=cart.${DNS_DOMAIN_NAME}
      export USER=user.${DNS_DOMAIN_NAME}
      export SHIPPING=shipping.${DNS_DOMAIN_NAME}
      export PAYMENT=payment.${DNS_DOMAIN_NAME}
-#     envsubst <template.conf > /etc/nginx/nginx.conf
-sed -i -e "s/CATALOGUE/${CATALOGUE}/" -e "s/CART/${CART}/" -e "s/USER/${USER}/" -e "s/SHIPPING/${SHIPPING}/" -e "s/PAYMENT/${PAYMENT}/" /etc/nginx/nginx.conf
+
+     sed -i -e "s/CATALOGUE/${CATALOGUE}/" -e "s/CART/${CART}/" -e "s/USER/${USER}/" -e "s/SHIPPING/${SHIPPING}/" -e "s/PAYMENT/${PAYMENT}/" /etc/nginx/nginx.conf
      Print "Starting Nginx"
      systemctl enable nginx
      systemctl restart nginx
      statusCheck
-    ;;
-  catalogue)
-   Print  "Installing Catalogue"
-   setupNodeJs "catalogue" "https://github.com/AbdullahGhani1/rs-catalogue/archive/master.zip"
-   ;;
-  cart)
-    Print  "Installing Cart"
-    setupNodeJs "cart" "https://github.com/AbdullahGhani1/rs-cart/archive/master.zip"
-   ;;
- user)
-   Print  "Installing User"
-   setupNodeJs "user" "https://github.com/AbdullahGhani1/rs-user/archive/master.zip"
-   ;;
- mongodb)
-   echo '[mongodb-org-4.2]
+}
+MongoDb(){
+     echo '[mongodb-org-4.2]
 name=MongoDB Repository
 baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.2/x86_64/
 gpgcheck=1
@@ -147,9 +129,9 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc' >/etc/yum.repos.d/mong
    Print "Load User Schema"
    mongo < users.js
    systemctl restart mongod
-   ;;
-   redis)
-   Print "Install Yum Utils"
+}
+Redis (){
+  Print "Install Yum Utils"
   yum install epel-release yum-utils http://rpms.remirepo.net/enterprise/remi-release-7.rpm -y
   statusCheck
   Print "Enable Remi repos"
@@ -167,8 +149,8 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc' >/etc/yum.repos.d/mong
   systemctl enable redis
   systemctl start redis
   statusCheck
-   ;;
-shipping)
+}
+Shipping(){
   Print "Install Maven"
   yum install maven -y
   statusCheck
@@ -197,10 +179,37 @@ shipping)
   Print "Start Service"
   systemctl start shipping
   statusCheck
+}
+# Main Program
+case $1 in
+  frontend)
+   Frontend
+    ;;
+  catalogue)
+   Print  "Installing Catalogue"
+   setupNodeJs "catalogue" "https://github.com/AbdullahGhani1/rs-catalogue/archive/master.zip"
+   ;;
+  cart)
+    Print  "Installing Cart"
+    setupNodeJs "cart" "https://github.com/AbdullahGhani1/rs-cart/archive/master.zip"
+   ;;
+ user)
+   Print  "Installing User"
+   setupNodeJs "user" "https://github.com/AbdullahGhani1/rs-user/archive/master.zip"
+   ;;
+ mongodb)
+  MongoDb
+   ;;
+   redis)
+    Redis
+   ;;
+shipping)
+  Shipping
   ;;
+  mysql);;
   *)
     echo "invalid Input, Following are the only accepted "
-    echo "Usage $0 frontend | Catalogue | cart "
+    echo "Usage $0 frontend | Catalogue | cart | Redis | Monho | Shipping | Mysql  "
     exit 2
  ;;
 esac

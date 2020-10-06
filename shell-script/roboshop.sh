@@ -31,10 +31,12 @@ statusCheck(){
 }
 
 Create_AppUser() {
-   id -u roboshop ||(
+   id roboshop
+   if [ $? -ne 0 ]; then
       Print "Add Application User"
       useradd roboshop
-      statusCheck)
+      statusCheck
+   fi
 }
 copyFile(){
   mv rs-$1-master/*  .
@@ -93,8 +95,10 @@ Frontend(){
      export USER=user.${DNS_DOMAIN_NAME}
      export SHIPPING=shipping.${DNS_DOMAIN_NAME}
      export PAYMENT=payment.${DNS_DOMAIN_NAME}
-
-     sed -i -e "s/CATALOGUE/${CATALOGUE}/" -e "s/CART/${CART}/" -e "s/USER/${USER}/" -e "s/SHIPPING/${SHIPPING}/" -e "s/PAYMENT/${PAYMENT}/" /etc/nginx/nginx.conf
+      if [ -e /erc/nginx/nginx.conf ]; then
+        sed -i -e "s/CATALOGUE/${CATALOGUE}/" -e "s/CART/${CART}/" -e "s/USER/${USER}/" -e "s/SHIPPING/${SHIPPING}/" -e
+         "s/PAYMENT/${PAYMENT}/" /etc/nginx/nginx.conf
+     fi
      Print "Starting Nginx"
      systemctl enable nginx
      systemctl restart nginx
@@ -145,7 +149,7 @@ Redis (){
   Print "Update Configuration"
   if [ -e /etc/redis.conf ]; then
     sed -i -e '/^bind 127.0.0.1/ c bind 0.0.0.0' /etc/redis.conf
-   fi
+  fi
   statusCheck
   Print "Start Service"
   systemctl enable redis
@@ -183,8 +187,7 @@ Shipping(){
 }
 MySQL(){
  Print "Download MYSQL"
- case $? in
-  1)
+ if [ $? -ne  0 ]; then
     curl -L -o /tmp/mysql-5.7.28-1.el7.x86_64.rpm-bundle.tar https://downloads.mysql.com/archives/get/p/23/file/mysql-5.7.28-1.el7.x86_64.rpm-bundle.tar
     cd /tmp
     Print "Extract Archive"
@@ -197,23 +200,20 @@ MySQL(){
                 mysql-community-libs-5.7.28-1.el7.x86_64.rpm \
                 mysql-community-server-5.7.28-1.el7.x86_64.rpm -y
     statusCheck
-      ;;
- esac
-  systemctl enable mysqld
+ fi
+ systemctl enable mysqld
   Print "Start MYSQL"
   systemctl start mysqld
   statusCheck
   echo "show database;"| mysql -uroot -ppassword
-  case $? in
-  1)
+  if [ $? -ne 0 ]; then
     echo -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'Password@2';\nuninstall plugin validate_password;\nALTER USER
      'root'@'localhost' IDENTIFIED BY 'password';">/tmp/reset-password.sql
      ROOT_PASSWORD=$(grep 'A temporary password' /var/log/mysqld.log | awk '{print $NF}')
      Print "Reset MYSQL Password"
      mysql -uroot -p"${ROOT_PASSWORD}" < /tmp/reset-password.sql
      statusCheck
-     ;;
-   esac
+  fi
    Print "Download Schema"
    curl -s -L -o /tmp/mysql.zip "https://github.com/AbdullahGhani1/rs-mysql.git/archive/master.zip"
    statusCheck

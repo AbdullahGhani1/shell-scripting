@@ -32,12 +32,14 @@ Status_Check() {
 
 Create_AppUser() {
   id roboshop
+  Status_Check
   if [ $? -ne 0 ]; then
       Print "Add Application User"
       useradd roboshop
       Status_Check
   fi
 }
+
 copyFile(){
   mv rs-$1-master/*  .
   rm -rf rs-$1-master

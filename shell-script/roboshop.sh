@@ -2,7 +2,7 @@
 set -e
 USER_ID=$(id -u)
 DNS_DOMAIN_NAME="devops360.tk"
-
+robo=$(id roboshop)
 case $USER_ID in
   0)
     echo  "Starting Installation"
@@ -31,9 +31,7 @@ Status_Check() {
 }
 
 Create_AppUser() {
-  id roboshop
-  Status_Check
-  if [ $? -ne 0 ]; then
+  if [ robo -ne 0 ]; then
       Print "Add Application User"
       useradd roboshop
       Status_Check

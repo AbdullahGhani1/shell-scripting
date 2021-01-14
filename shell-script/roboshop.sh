@@ -18,7 +18,7 @@ Print(){
     echo -e "\e[1;33m**********>>>>>>>>>>>> $1 <<<<<<<<<<***********\e[0m"
 
 }
-statusCheck(){
+Status_Check(){
   case $? in
     0)
       echo -e "\e[1;32mSUCCESS\e[0m"
@@ -31,12 +31,12 @@ statusCheck(){
 }
 
 Create_AppUser() {
-   id roboshop
-   if [ $? -ne 0 ]; then
+  id roboshop
+  if [ $? -ne 0 ]; then
       Print "Add Application User"
       useradd roboshop
-      statusCheck
-   fi
+      Status_Check
+  fi
 }
 copyFile(){
   mv rs-$1-master/*  .
@@ -44,21 +44,21 @@ copyFile(){
 }
 setupNodeJs(){
   Print "Installing NodeJs"
-  yum install -y nodejs make gcc-c++
-  statusCheck
+  yum install nodejs make gcc-c++ -y
+  Status_Check
   Create_AppUser
   Print "Downloadng Application"
   curl -s -L -o /tmp/$1.zip "$2"
-  statusCheck
+  Status_Check
   Print "Extracting Application Archive"
   mkdir -p /home/roboshop/$1
   cd /home/roboshop/$1
   unzip -o /tmp/$1.zip
-  statusCheck
+  Status_Check
   copyFile $1
   Print "Install NodeJs App Dependencies"
   npm --unsafe-perm install
-  statusCheck
+  Status_Check
   chown roboshop:roboshop /home/roboshop -R
   Print "Setup $1 Service"
   mv /home/roboshop/$1/systemd.service /etc/systemd/system/$1.service
@@ -66,25 +66,25 @@ setupNodeJs(){
   sed -i -e "s/REDIS_ENDPOINT/redis.${DNS_DOMAIN_NAME}/" /etc/systemd/system/$1.service
   sed -i -e "s/CATALOGUE_ENDPOINT/catalogue.${DNS_DOMAIN_NAME}/" /etc/systemd/system/$1.service
 
-  statusCheck
+  Status_Check
   Print "Start $1 Service"
   systemctl daemon-reload
   systemctl start $1
   systemctl enable $1
-  statusCheck
+  Status_Check
 }
 Frontend(){
     Print "Installing Nginx"
     yum install nginx -y
-    statusCheck
+    Status_Check
     Print "Downloading Frontend App"
     curl -s -L -o /tmp/frontend.zip "https://github.com/AbdullahGhani1/rs-frontend/archive/master.zip"
-    statusCheck
+    Status_Check
      cd /usr/share/nginx/html
      rm -rf *
      Print "Extracting Frontend Archive"
      unzip /tmp/frontend.zip
-     statusCheck
+     Status_Check
      copyFile frontend
      mv static/* .
      rm -rf static README.md
@@ -102,7 +102,7 @@ Frontend(){
      Print "Starting Nginx"
      systemctl enable nginx
      systemctl restart nginx
-     statusCheck
+     Status_Check
 }
 MongoDb(){
      echo '[mongodb-org-4.2]
@@ -113,67 +113,67 @@ enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-4.2.asc' >/etc/yum.repos.d/mongodb.repo
    Print "Installing MongoDB"
    yum install -y mongodb-org
-   statusCheck
+   Status_Check
    Print "Update MongoDB Configuration"
    sed -i 's/127.0.0.1/0.0.0.0/' /etc/mongod.conf
-   statusCheck
+   Status_Check
    Print "Starting MongoDB Service"
    systemctl enable mongod
    systemctl start mongod
-   statusCheck
+   Status_Check
    Print "Download Schema"
    curl -s -L -o /tmp/mongodb.zip "https://github.com/AbdullahGhani1/rs-mongo/archive/master.zip"
-   statusCheck
+   Status_Check
    cd /tmp
    Print "Extracting Archive"
    unzip -o /tmp/mongodb.zip
    copyFile mongo
-   statusCheck
+   Status_Check
    Print "Load Catalogue Schema"
    mongo < catalogue.js
    Print "Load User Schema"
    mongo < users.js
-   statusCheck
+   Status_Check
 #   systemctl restart mongod
 }
 Redis (){
   Print "Install Yum Utils"
   yum install epel-release yum-utils http://rpms.remirepo.net/enterprise/remi-release-7.rpm -y
-  statusCheck
+  Status_Check
   Print "Enable Remi repos"
   yum-config-manager --enable remi
-  statusCheck
+  Status_Check
   Print "Install Redis"
   yum install redis -y
-  statusCheck
+  Status_Check
   Print "Update Configuration"
   if [ -e /etc/redis.conf ]; then
     sed -i -e '/^bind 127.0.0.1/ c bind 0.0.0.0' /etc/redis.conf
   fi
-  statusCheck
+  Status_Check
   Print "Start Service"
   systemctl enable redis
   systemctl start redis
-  statusCheck
+  Status_Check
 }
 Shipping(){
   Print "Install Maven"
   yum install maven -y
-  statusCheck
+  Status_Check
   Create_AppUser
   cd /home/roboshop
   Print "Downloading Application"
   curl -s -L -o /tmp/mongodb.zip "https://github.com/AbdullahGhani1/rs-shipping/archive/master.zip"
-  statusCheck
+  Status_Check
   mkdir shipping
   cd shipping
   Print "Extracting Archive"
   unzip -o /tmp/mongodb.zip
-  statusCheck
+  Status_Check
   copyFile shipping
   Print "Install Dependencies"
   mvn clean package
-  statusCheck
+  Status_Check
   mv target/*dependencies.jar shipping.jar
   chown roboshop:roboshop /home/roboshop -R
   mv /home/roboshop/shipping/systemd.service /etc/systemd/system/shipping.service
@@ -183,7 +183,7 @@ Shipping(){
   systemctl enable shipping
   Print "Start Service"
   systemctl start shipping
-  statusCheck
+  Status_Check
 }
 MySQL(){
  Print "Download MYSQL"
@@ -192,19 +192,19 @@ MySQL(){
     cd /tmp
     Print "Extract Archive"
     tar -xf mysql-5.7.28-1.el7.x86_64.rpm-bundle.tar
-    statusCheck
+    Status_Check
     yum remove mariadb-libs -y
     Print "Install MySQL"
     yum install mysql-community-client-5.7.28-1.el7.x86_64.rpm \
                 mysql-community-common-5.7.28-1.el7.x86_64.rpm \
                 mysql-community-libs-5.7.28-1.el7.x86_64.rpm \
                 mysql-community-server-5.7.28-1.el7.x86_64.rpm -y
-    statusCheck
+    Status_Check
  fi
  systemctl enable mysqld
   Print "Start MYSQL"
   systemctl start mysqld
-  statusCheck
+  Status_Check
   echo "show database;"| mysql -uroot -ppassword
   if [ $? -ne 0 ]; then
     echo -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'Password@2';\nuninstall plugin validate_password;\nALTER USER
@@ -212,29 +212,29 @@ MySQL(){
      ROOT_PASSWORD=$(grep 'A temporary password' /var/log/mysqld.log | awk '{print $NF}')
      Print "Reset MYSQL Password"
      mysql -uroot -p"${ROOT_PASSWORD}" < /tmp/reset-password.sql
-     statusCheck
+     Status_Check
   fi
    Print "Download Schema"
    curl -s -L -o /tmp/mysql.zip "https://github.com/AbdullahGhani1/rs-mysql.git/archive/master.zip"
-   statusCheck
+   Status_Check
    Print "Extract Archive"
    cd /tmp
    unzip -o mysql.zip
-   statusCheck
+   Status_Check
    copyFile mysql
    Print "Load Schema"
    mysql -u root -ppassword < shipping.sql
-   statusCheck
+   Status_Check
 }
 Payment()
 {
   Print "Install Python"
   yum install python36 gcc python3-devel -y
-  statusCheck
+  Status_Check
   Create_AppUser
   Print "Download Application"
   curl -s -L -o /tmp/mysql.zip "https://github.com/AbdullahGhani1/rs-payment.git/archive/master.zip"
-  statusCheck
+  Status_Check
   cd /home/roboshop
   mkdir payment
   cd payment
@@ -242,7 +242,7 @@ Payment()
   copyFile payment
   Print "Install the dependencies"
   pip3 install -r requirements.txt
-  statusCheck
+  Status_Check
   chown roboshop:roboshop /home/roboshop -R
   mv /home/roboshop/payment/systemd.service /etc/systemd/system/payment.service
   sed -i -e "s/CARTHOST/cart.${DNS_DOMAIN_NAME}/" -e "s/USERHOST/user.${DNS_DOMAIN_NAME}/" -e "s/AMQPHOST/rabbitmq.${DNS_DOMAIN_NAME}/" /etc/systemd/system/payment.service
@@ -256,22 +256,22 @@ RabbitMQ()
 {
   Print "installing ErLang"
   yum install https://packages.erlang-solutions.com/erlang/rpm/centos/7/x86_64/esl-erlang_22.2.1-1~centos~7_amd64.rpm -y
-  statusCheck
+  Status_Check
   Print "Install RabbitMQ repos"
   curl -s https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.rpm.sh | sudo bash
-  statusCheck
+  Status_Check
   Print "Install RabbitMQ Server"
   yum install rabbitmq-server -y
-  statusCheck
+  Status_Check
   Print "Start RabbitMQ Server"
   systemctl enable rabbitmq-server
   systemctl start rabbitmq-server
-  statusCheck
+  Status_Check
   Print "Create App user in RabbitMQ"
   rabbitmqctl add_user roboshop roboshop123
   rabbitmqctl set_user_tags roboshop administrator
   rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*"
-  statusCheck
+  Status_Check
 }
 # Main Program
 case $1 in

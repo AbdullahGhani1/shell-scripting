@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+#set -e
 USER_ID=$(id -u)
 DNS_DOMAIN_NAME="devops360.tk"
 
@@ -32,19 +32,11 @@ Status_Check() {
 
 Create_AppUser() {
   id roboshop
-  case $? in
-1)
-  Print "Add Application User"
-  useradd roboshop
-  Status_Check
-;;
-esac
-#  if [ $? -ne 0 ]; then
-#      Print "Add Application User"
-#      useradd roboshop
-#      Status_Check
-#  fi
-
+  if [ $? -ne 0 ]; then
+      Print "Add Application User"
+      useradd roboshop
+      Status_Check
+  fi
 }
 
 copyFile(){

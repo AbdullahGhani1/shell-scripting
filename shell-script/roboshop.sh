@@ -18,13 +18,13 @@ Print(){
     echo -e "\e[1;33m**********>>>>>>>>>>>> $1 <<<<<<<<<<***********\e[0m"
 
 }
-Status_Check(){
+Status_Check() {
   case $? in
     0)
-      echo -e "\e[1;32mSUCCESS\e[0m"
+      echo -e "\e[1;32m**************>>>>>>>>>>>>>>>>>>>>>  SUCCESS   <<<<<<<<<<<<<<<<<<<<<<<<<<<****************\e[0m"
       ;;
     *)
-      echo  -e "\e[1;31mFAILURE\3[0m"
+      echo -e "\e[1;31m**************>>>>>>>>>>>>>>>>>>>>>  FAILURE   <<<<<<<<<<<<<<<<<<<<<<<<<<<****************\e[0m"
       exit 3
       ;;
   esac
@@ -47,7 +47,7 @@ setupNodeJs(){
   yum install nodejs make gcc-c++ -y
   Status_Check
   Create_AppUser
-  Print "Downloadng Application"
+  Print "Downloading Application"
   curl -s -L -o /tmp/$1.zip "$2"
   Status_Check
   Print "Extracting Application Archive"
@@ -80,15 +80,15 @@ Frontend(){
     Print "Downloading Frontend App"
     curl -s -L -o /tmp/frontend.zip "https://github.com/AbdullahGhani1/rs-frontend/archive/master.zip"
     Status_Check
-     cd /usr/share/nginx/html
-     rm -rf *
-     Print "Extracting Frontend Archive"
-     unzip /tmp/frontend.zip
-     Status_Check
-     copyFile frontend
-     mv static/* .
-     rm -rf static README.md
-     mv template.conf /etc/nginx/nginx.conf
+    cd /usr/share/nginx/html
+    rm -rf *
+    Print "Extracting Frontend Archive"
+    unzip /tmp/frontend.zip
+    Status_Check
+    copyFile frontend
+    mv static/* .
+    rm -rf static README.md
+    mv template.conf /etc/nginx/nginx.conf
 
      export CATALOGUE=catalogue.${DNS_DOMAIN_NAME}
      export CART=cart.${DNS_DOMAIN_NAME}
@@ -309,8 +309,8 @@ shipping)
     Rabbitmq
     ;;
   *)
-    echo "invalid Input, Following are the only accepted "
-    echo "Usage $0 frontend | Catalogue | cart | Redis | Monho | Shipping | Mysql  "
+    echo "invalid Input, Following are the only accepted"
+    echo "Usage $0 frontend | Catalogue | cart | Redis | Mongo | Shipping | Mysql  "
     exit 2
  ;;
 esac

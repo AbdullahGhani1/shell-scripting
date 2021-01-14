@@ -2,7 +2,7 @@
 set -e
 USER_ID=$(id -u)
 DNS_DOMAIN_NAME="devops360.tk"
-robo=$(id roboshop)
+
 case $USER_ID in
   0)
     echo  "Starting Installation"
@@ -16,8 +16,8 @@ esac
 ## Function
 Print(){
     echo -e "\e[1;33m**********>>>>>>>>>>>> $1 <<<<<<<<<<***********\e[0m"
-
 }
+
 Status_Check() {
   case $? in
     0)
@@ -31,18 +31,28 @@ Status_Check() {
 }
 
 Create_AppUser() {
-  if [ robo -ne 0 ]; then
-      Print "Add Application User"
-      useradd roboshop
-      Status_Check
-  fi
+  id roboshop
+  case $? in
+1)
+  Print "Add Application User"
+  useradd roboshop
+  Status_Check
+;;
+esac
+#  if [ $? -ne 0 ]; then
+#      Print "Add Application User"
+#      useradd roboshop
+#      Status_Check
+#  fi
+
 }
 
 copyFile(){
   mv rs-$1-master/*  .
   rm -rf rs-$1-master
 }
-setupNodeJs(){
+
+Setup_NodeJS(){
   Print "Installing NodeJs"
   yum install nodejs make gcc-c++ -y
   Status_Check
@@ -65,7 +75,6 @@ setupNodeJs(){
   sed -i -e "s/MONGO_ENDPOINT/mongodb.${DNS_DOMAIN_NAME}/" /etc/systemd/system/$1.service
   sed -i -e "s/REDIS_ENDPOINT/redis.${DNS_DOMAIN_NAME}/" /etc/systemd/system/$1.service
   sed -i -e "s/CATALOGUE_ENDPOINT/catalogue.${DNS_DOMAIN_NAME}/" /etc/systemd/system/$1.service
-
   Status_Check
   Print "Start $1 Service"
   systemctl daemon-reload
@@ -95,6 +104,7 @@ Frontend(){
      export USER=user.${DNS_DOMAIN_NAME}
      export SHIPPING=shipping.${DNS_DOMAIN_NAME}
      export PAYMENT=payment.${DNS_DOMAIN_NAME}
+
       if [ -e /erc/nginx/nginx.conf ]; then
         sed -i -e "s/CATALOGUE/${CATALOGUE}/" -e "s/CART/${CART}/" -e "s/USER/${USER}/" -e "s/SHIPPING/${SHIPPING}/" -e
          "s/PAYMENT/${PAYMENT}/" /etc/nginx/nginx.conf
@@ -280,15 +290,15 @@ case $1 in
     ;;
   catalogue)
    Print  "Installing Catalogue"
-   setupNodeJs "catalogue" "https://github.com/AbdullahGhani1/rs-catalogue/archive/master.zip"
+   Setup_NodeJS "catalogue" "https://github.com/AbdullahGhani1/rs-catalogue/archive/master.zip"
    ;;
   cart)
     Print  "Installing Cart"
-    setupNodeJs "cart" "https://github.com/AbdullahGhani1/rs-cart/archive/master.zip"
+    Setup_NodeJS "cart" "https://github.com/AbdullahGhani1/rs-cart/archive/master.zip"
    ;;
  user)
    Print  "Installing User"
-   setupNodeJs "user" "https://github.com/AbdullahGhani1/rs-user/archive/master.zip"
+   Setup_NodeJS "user" "https://github.com/AbdullahGhani1/rs-user/archive/master.zip"
    ;;
  mongodb)
   MongoDb
